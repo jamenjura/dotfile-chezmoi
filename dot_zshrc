@@ -1,0 +1,343 @@
+# ============================================
+# CONFIGURACIÓN ZSH ESTABLE - SIN AUTOCOMPLETE
+# ============================================
+
+# ============================================
+# PATH
+# ============================================
+export PATH="/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+export PATH="/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/local/bin:$PATH"
+export PATH="/var/run/com.apple.security.cryptexd/codex.system/bootstrap/usr/bin:$PATH"
+export PATH="/Applications/iTerm.app/Contents/Resources/utilities:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+export PATH="/opt/homebrew/opt/curl/bin:$PATH"
+
+# ============================================
+# PYENV - LAZY LOADING
+# ============================================
+export PYENV_ROOT="$HOME/.pyenv"
+if [[ -d $PYENV_ROOT ]]; then
+  export PATH="$PYENV_ROOT/bin:$PATH"
+  
+  pyenv() {
+    unfunction pyenv
+    eval "$(command pyenv init --path)"
+    eval "$(command pyenv init - --no-rehash)"
+    pyenv "$@"
+  }
+fi
+
+# ============================================
+# GOENV - LAZY LOADING
+# ============================================
+export GOENV_ROOT="$HOME/.goenv"
+if [[ -d $GOENV_ROOT ]]; then
+  export PATH="$GOENV_ROOT/bin:$PATH"
+  
+  export GOPRIVATE="github.com/mercadolibre/*,github.com/melisource/*"
+  export GONOSUMDB="github.com/mercadolibre/*,github.com/melisource/*"
+  export GOPROXY="https://go.artifacts.furycloud.io/"
+  export GONOPROXY="https://go.artifacts.furycloud.io/"
+  export GO_ENVIRONMENT="production"
+  
+  goenv() {
+    unfunction goenv
+    eval "$(command goenv init -)"
+    export PATH="$GOROOT/bin:$PATH"
+    export PATH="$PATH:$GOPATH/bin"
+    goenv "$@"
+  }
+fi
+
+# ============================================
+# NVM - LAZY LOADING
+# ============================================
+export NVM_DIR="$HOME/.nvm"
+if [[ -d $NVM_DIR ]]; then
+  nvm_lazy() {
+    unset -f nvm node npm npx
+    [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+    [ -s "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm" ] && \. "/opt/homebrew/opt/nvm/etc/bash_completion.d/nvm"
+  }
+  
+  nvm() { nvm_lazy; nvm "$@"; }
+  node() { nvm_lazy; node "$@"; }
+  npm() { nvm_lazy; npm "$@"; }
+  npx() { nvm_lazy; npx "$@"; }
+fi
+
+# ============================================
+# ZSH OPTIONS
+# ============================================
+setopt extended_glob
+setopt auto_list
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_FIND_NO_DUPS
+setopt HIST_SAVE_NO_DUPS
+
+HISTSIZE=10000
+SAVEHIST=100000
+HISTFILESIZE=20000
+HISTFILE=~/.zsh_history
+
+# ============================================
+# ZSH OPEN BUFFER LINE EDITOR
+# ============================================
+autoload -Uz edit-command-line
+zle -N edit-command-line
+bindkey '^x^e' edit-command-line
+
+# ============================================
+# KEYBINDINGS - MODO EMACS (CTRL+P funcional)
+# ============================================
+# Usar modo Emacs (default, pero por si acaso)
+bindkey -e
+
+# Navegación de historial con Ctrl+P / Ctrl+N
+bindkey '^P' up-line-or-history
+bindkey '^N' down-line-or-history
+
+# Búsqueda incremental
+bindkey '^R' history-incremental-search-backward
+bindkey '^S' history-incremental-search-forward
+
+# Navegación por palabras
+bindkey '^[[1;5C' forward-word
+bindkey '^[[1;5D' backward-word
+
+# macOS: Option + flechas
+if [[ "$OSTYPE" == "darwin"* ]]; then 
+  bindkey '^[^[[C' forward-word
+  bindkey '^[^[[D' backward-word
+fi
+
+# Editar línea en editor
+bindkey '^X^E' edit-command-line
+
+# ============================================
+# COMPLETIONS - NATIVAS ZSH
+# ============================================
+autoload -Uz compinit
+
+# Cache por 24 horas
+setopt EXTENDEDGLOB
+for dump in ~/.zcompdump(N.mh+24); do
+  compinit
+done
+compinit -C
+
+# Configuración de completions
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' # Case insensitive
+zstyle ':completion:*' list-colors "${(s.:.)LS_COLORS}"
+zstyle ':completion:*' special-dirs true
+zstyle ':completion:*' squeeze-slashes true
+
+# Homebrew completions
+if type brew &>/dev/null; then
+  FPATH=$(brew --prefix)/share/zsh-completions:$FPATH
+fi
+
+# AWS completions
+autoload bashcompinit && bashcompinit
+complete -C '/opt/homebrew/bin/aws_completer' aws
+
+# zfunc custom
+fpath+=~/.zfunc
+
+# Cargar colores
+autoload -U colors && colors
+
+# ============================================
+# FZF - Búsqueda fuzzy
+# ============================================
+if command -v fzf &> /dev/null; then
+  source <(fzf --zsh)
+  
+  # Keybindings personalizados para fzf
+  export FZF_DEFAULT_OPTS="--height 40% --layout=reverse --border"
+  export FZF_CTRL_T_OPTS="--preview 'bat --color=always --line-range :500 {}' 2>/dev/null"
+  export FZF_ALT_C_OPTS="--preview 'tree -C {} | head -100'"
+fi
+
+# ============================================
+# PLUGINS - ORDEN CORRECTO
+# ============================================
+
+# 1. zsh-autosuggestions (sugerencias en gris)
+if [[ -f $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+  source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+  
+  # Configuración de autosuggestions
+  ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+  ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+  ZSH_AUTOSUGGEST_USE_ASYNC=true
+  ZSH_AUTOSUGGEST_MANUAL_REBIND=1
+  
+  # Aceptar sugerencia con Ctrl+Space o flecha derecha
+  bindkey '^ ' autosuggest-accept
+  bindkey '^[[C' forward-char  # No aceptar con flecha derecha, solo mover cursor
+fi
+
+# 2. Fast Syntax Highlighting (SIEMPRE AL FINAL)
+if [[ -f ~/cosas/fzh/fast-syntax-highlighting.plugin.zsh ]]; then
+  source ~/cosas/fzh/fast-syntax-highlighting.plugin.zsh
+fi
+
+# ============================================
+# ALIASES
+# ============================================
+alias cdd='cd "$HOME/Documents"'
+alias ls='ls --color=auto'
+alias ll='ls -lah --color=auto'
+alias tf='terraform'
+alias meli='cd "$HOME/Documents/MELI"'
+alias cls='clear'
+alias h='history'
+alias lss="eza -l"
+
+# ============================================
+# EDITOR
+# ============================================
+export EDITOR=nvim
+export VISUAL=nvim
+
+# ============================================
+# FURY CLI
+# ============================================
+export RANGER_FURY_LOCATION="$HOME/.fury"
+export RANGER_FURY_VENV_LOCATION="$HOME/.fury/fury_venv"
+export FURY_BIN_LOCATION="$HOME/.fury/fury_venv/bin"
+export PATH="$PATH:$FURY_BIN_LOCATION"
+
+# ============================================
+# SERVICES CLI
+# ============================================
+export PATH="$PATH:$HOME/.srvc_cli/venv/bin"
+
+# ============================================
+# GO CONFIG
+# ============================================
+export configFileName=cmd/api/config/configuration.properties
+export checksumEnabled=false
+export localScope=local
+
+# ============================================
+# FUNCTIONS
+# ============================================
+alfred() {
+  "$HOME/Documents/MELI/scripts/alfred.sh" "$1" "$2"
+}
+
+# ============================================
+# INTEGRATIONS
+# ============================================
+
+# iTerm2 shell integration
+if [[ -f "${HOME}/.iterm2_shell_integration.zsh" ]]; then
+  source "${HOME}/.iterm2_shell_integration.zsh"
+fi
+
+# Atuin (historial mejorado)
+if command -v atuin &> /dev/null; then
+  eval "$(atuin init zsh)"
+fi
+
+# Mise (version manager)
+if command -v mise &> /dev/null; then
+  eval "$(mise activate zsh)"
+fi
+
+# Starship prompt (SIEMPRE AL FINAL)
+if command -v starship &> /dev/null; then
+  eval "$(starship init zsh)"
+fi
+
+
+autoload -U +X bashcompinit && bashcompinit
+complete -o nospace -C /opt/homebrew/Cellar/tfenv/3.0.0/versions/1.5.5/terraform terraform
+
+# Added by Python Dev Environment Installer
+export HOMEBREW_BIN_LOCATION="/opt/homebrew/bin"
+export PATH="$HOMEBREW_BIN_LOCATION:$PATH"
+# Added by Python Dev Environment Installer
+alias fa='furyassist'
+export ANTHROPIC_MODEL="claude-sonnet-4-6[1m]"
+
+
+
+
+# Internal Python Registry
+export PIP_INDEX_URL='https://pypi.artifacts.furycloud.io/simple'
+export UV_INDEX_URL='https://pypi.artifacts.furycloud.io/simple'
+
+# >>> es-wrapper initialize >>>
+# Agregado automáticamente por el instalador de es-wrapper
+# Para desinstalar, ejecuta: ~/.es-wrapper/uninstall.sh
+export PATH="$HOME/.es-wrapper/bin:$PATH"
+
+unalias source 2>/dev/null
+unalias . 2>/dev/null
+source() {
+    builtin source "$@"
+    local ret=$?
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        export PATH="$HOME/.es-wrapper/bin:$PATH"
+    fi
+    return $ret
+}
+alias .='source'
+
+_es_wrapper_guard() {
+    case ":$PATH:" in
+        *":$HOME/.es-wrapper/bin:"*)
+            if [[ "$PATH" != "$HOME/.es-wrapper/bin:"* ]]; then
+                local _eswrap_p="${PATH//$HOME\/.es-wrapper\/bin:/}"
+                _eswrap_p="${_eswrap_p//:$HOME\/.es-wrapper\/bin/}"
+                export PATH="$HOME/.es-wrapper/bin:$_eswrap_p"
+            fi
+            ;;
+        *)
+            export PATH="$HOME/.es-wrapper/bin:$PATH"
+            ;;
+    esac
+}
+precmd_functions+=(_es_wrapper_guard)
+
+_es_wrapper_vm_hook() {
+    [[ -f .nvmrc || -f .node-version ]] && type nvm &>/dev/null && nvm use --silent 2>/dev/null
+    [[ -f .python-version ]] && command -v pyenv &>/dev/null && pyenv local 2>/dev/null
+}
+if [[ -n "$ZSH_VERSION" ]]; then
+    autoload -U add-zsh-hook 2>/dev/null
+    add-zsh-hook chpwd _es_wrapper_vm_hook
+    _es_wrapper_vm_hook
+fi
+# <<< es-wrapper initialize <<<
+source ~/.zshrc_secrets
+
+
+
+
+
+
+
+# >>> Claude Code OpenTelemetry (managed) >>>
+export OTEL_RESOURCE_ATTRIBUTES='x.event.source=o11y-ai,x.mdm.script.name=set_system_hooks,x.mdm.script.version=1.4.2'
+export CLAUDE_CODE_ENABLE_TELEMETRY='1'
+export CLAUDE_CODE_ENHANCED_TELEMETRY_BETA='1'
+export OTEL_METRICS_EXPORTER='otlp'
+export OTEL_METRIC_EXPORT_INTERVAL='10000'
+export OTEL_EXPORTER_OTLP_METRICS_TEMPORALITY_PREFERENCE='delta'
+export OTEL_LOGS_EXPORTER='otlp'
+export OTEL_LOGS_EXPORT_INTERVAL='5000'
+export OTEL_TRACES_EXPORTER='otlp'
+export OTEL_TRACES_EXPORT_INTERVAL='1000'
+export OTEL_EXPORTER_OTLP_TRACES_PROTOCOL='http/protobuf'
+export OTEL_EXPORTER_OTLP_TRACES_ENDPOINT='https://o11y-proxy-otel-ai.meli.com/v1/traces'
+export OTEL_EXPORTER_OTLP_PROTOCOL='http/protobuf'
+export OTEL_EXPORTER_OTLP_ENDPOINT='https://o11y-proxy-otel-ai.meli.com'
+export OTEL_LOG_USER_PROMPTS='0'
+export OTEL_LOG_TOOL_DETAILS='1'
+# <<< Claude Code OpenTelemetry (managed) <<<
