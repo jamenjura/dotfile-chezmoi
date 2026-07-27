@@ -1,0 +1,13 @@
+# Lazy.nvim compiled files
+lua/lazy-lock-backup.json
+
+# Neovim internal state (managed at runtime, not config)
+# Note: lazy-lock.json IS intentionally tracked for reproducible installs
+
+# Editor artifacts
+*.swp
+*.swo
+.DS_Store
+
+# ATL (Claude Code internal)
+.atl/
