@@ -101,22 +101,26 @@ The personal environment should continue working even if work-related modules ar
 ```
 chezmoi/
 ├── .chezmoi.toml.tmpl        # profile selection on chezmoi init (personal/work)
-├── .chezmoiignore.tmpl       # work machines do not deploy .config/zsh/**
+├── .chezmoiignore.tmpl       # per-profile exclusions (zsh modules, Brewfile on work)
 ├── .chezmoiremove.tmpl       # cleans .config/zsh when switching to work
 ├── .chezmoitemplates/
 │   └── zshrc-work            # work machine .zshrc (isolated, verbatim)
-├── docs/
+├── Brewfile                  # personal brew bundle (~/Brewfile, personal only)
+├── docs/                     # repo documentation (not deployed)
 ├── dot_config/
+│   ├── gh/                   # GitHub CLI (hosts.yml is never managed)
+│   ├── gitui/
 │   ├── nvim/
+│   ├── starship.toml
 │   ├── zsh/                  # personal modular shell configuration
 │   └── private_atuin/
-├── dot_zshrc.tmpl            # work -> zshrc-work | personal -> module loader
-└── symlink_dot_gitconfig
+├── dot_gitconfig.tmpl        # git identity per profile (personal/work email)
+└── dot_zshrc.tmpl            # work -> zshrc-work | personal -> module loader
 ```
 
 Responsibilities are separated between documentation and configuration.
 
-- `docs/` contains project documentation.
+- `docs/` contains project documentation (kept in the repo only, never deployed).
 - `dot_config/` contains managed configuration.
 - Root files represent top-level configuration managed by Chezmoi.
 - `.chezmoitemplates/` contains shared templates (the work configuration is isolated here).

@@ -3,7 +3,16 @@
 .zshrc.secrets
 .zshrc_secrets
 
+# Repository documentation lives in the repo only, it is not deployed
+docs
+
+# GitHub CLI tokens must never be managed
+.config/gh/hosts.yml
+
 {{ if eq .profile "work" -}}
 # The personal modular zsh config is not deployed on work machines
 .config/zsh/**
+
+# Personal brew bundle
+Brewfile
 {{ end -}}
