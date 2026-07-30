@@ -14,6 +14,39 @@ El perfil de cada máquina se guarda en `~/.config/chezmoi/chezmoi.toml`
 
 ---
 
+# ⏱️ Orden de comandos (ciclo completo de un cambio)
+
+El orden importa: si saltas un paso, el cambio no llega a la otra máquina.
+
+```
+MÁQUINA A (donde editas)                MÁQUINA B (la otra)
+──────────────────────────              ──────────────────────
+1. nvim <archivo>
+2. exec zsh          ← probar
+3. chezmoi re-add    ← capturar
+4. cd ~/.local/share/chezmoi
+5. git add -A
+6. git commit -m "..."
+7. git push          ← subir
+                                     →  8. chezmoi update   ← bajar y aplicar
+                                     →  9. exec zsh         ← verificar
+```
+
+**Reglas del orden:**
+
+1. `exec zsh` (probar) **siempre antes** de `re-add`: no subas lo que no arranca.
+2. `re-add` **siempre antes** del commit: sin él, el repo no tiene tus cambios.
+3. `push` **siempre antes** de `chezmoi update` en la otra máquina.
+4. `chezmoi update` ya hace `pull` + `apply`: no necesitas git en la máquina B.
+5. Si editaste un **template** (`.gitconfig`, `.zshrc`): reemplaza los pasos 1-3
+   por `chezmoi edit <archivo>` + `chezmoi apply` (ver receta 8).
+
+**Primera vez en una máquina:** el orden es el de la sección
+[📥 Instalación limpia](#-instalación-limpia) (pasos numerados 1→8).
+Después de eso, todo cambio sigue el ciclo de arriba.
+
+---
+
 # 📥 Instalación limpia
 
 ## Mac personal (nueva o formateada)
