@@ -78,7 +78,6 @@ setopt HIST_SAVE_NO_DUPS
 
 HISTSIZE=10000
 SAVEHIST=100000
-HISTFILESIZE=20000
 HISTFILE=~/.zsh_history
 
 # ============================================
@@ -121,7 +120,6 @@ bindkey '^X^E' edit-command-line
 autoload -Uz compinit
 
 # Cache por 24 horas
-setopt EXTENDEDGLOB
 for dump in ~/.zcompdump(N.mh+24); do
   compinit
 done
@@ -140,7 +138,7 @@ if type brew &>/dev/null; then
 fi
 
 # AWS completions
-autoload bashcompinit && bashcompinit
+autoload -U +X bashcompinit && bashcompinit
 complete -C '/opt/homebrew/bin/aws_completer' aws
 
 # zfunc custom
@@ -255,12 +253,10 @@ if command -v starship &> /dev/null; then
 fi
 
 
-autoload -U +X bashcompinit && bashcompinit
-complete -o nospace -C /opt/homebrew/Cellar/tfenv/3.0.0/versions/1.5.5/terraform terraform
+if command -v terraform &>/dev/null; then
+  complete -o nospace -C "$(which terraform)" terraform
+fi
 
-# Added by Python Dev Environment Installer
-export HOMEBREW_BIN_LOCATION="/opt/homebrew/bin"
-export PATH="$HOMEBREW_BIN_LOCATION:$PATH"
 # Added by Python Dev Environment Installer
 alias fa='furyassist'
 export ANTHROPIC_MODEL="claude-sonnet-4-6[1m]"
