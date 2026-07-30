@@ -22,6 +22,8 @@ brew "cargo-c"
 brew "cask"
 # Prevent cloud misconfigurations during build-time for IaC tools
 brew "checkov"
+# Manage your dotfiles across multiple diverse machines, securely
+brew "chezmoi"
 # Pack, ship and run any application as a lightweight container
 brew "docker"
 # Simple command-line tool for creating clusters on Amazon EKS
@@ -72,10 +74,16 @@ brew "stow"
 brew "tea"
 # Official tldr client written in Rust
 brew "tlrc"
+# Parser generator tool
+brew "tree-sitter-cli"
 # Real-time type-ahead completion for Zsh
 brew "zsh-autocomplete"
 # Fish-like fast/unobtrusive autosuggestions for zsh
 brew "zsh-autosuggestions"
+# Additional completion definitions for zsh
+brew "zsh-completions"
+# Feature-rich syntax highlighting for Zsh
+brew "zsh-fast-syntax-highlighting"
 # The AI coding agent built for the terminal.
 brew "anomalyco/tap/opencode", trusted: true
 # Flux CLI
@@ -205,3 +213,10 @@ go "github.com/josharian/impl"
 go "honnef.co/go/tools/cmd/staticcheck"
 cargo "fd-find"
 npm "corepack"
+npm "neovim"
+
+# Herramientas instaladas fuera de Homebrew ARM (legado /usr/local)
+brew "bat"
+brew "gitui"
+brew "kubernetes-cli"
+brew "hashicorp/tap/terraform"
