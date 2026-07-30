@@ -219,4 +219,7 @@ npm "neovim"
 brew "bat"
 brew "gitui"
 brew "kubernetes-cli"
-brew "hashicorp/tap/terraform"
+
+# terraform se gestiona con tfswitch (versiones en ~/.terraform.versions), NO con brew
+tap "warrensbox/tap", trusted: true
+brew "warrensbox/tap/tfswitch"

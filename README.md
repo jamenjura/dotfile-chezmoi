@@ -35,6 +35,9 @@ chezmoi init --apply git@github.com:jamenjura/dotfile-chezmoi.git
 # 5. Instalar todos los paquetes
 brew bundle --file=~/Brewfile
 
+# 5b. terraform llega vía tfswitch (elige la versión que necesites)
+tfswitch
+
 # 6. Node (nvm no va por brew)
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 
@@ -120,6 +123,32 @@ chezmoi update        # = git pull + chezmoi apply
 | `.zshrc` | `chezmoi edit ~/.zshrc` ⚠️ template (casi nunca: es solo el loader) |
 | Algo solo del trabajo | `~/.zshrc_work` (local, NO va al repo) |
 | Orden de carga de módulos | `~/.config/zsh/loader.zsh` |
+
+---
+
+# 🔀 Gestores de versión
+
+Cada herramienta cambia de versión con su gestor; la configuración ya está
+preparada para ellos (no hay rutas fijas: todo se resuelve con `command -v`
+y shims/symlinks dinámicos).
+
+| Herramienta | Gestor | Cambiar de versión | Dónde vive |
+|---|---|---|---|
+| terraform | **tfswitch** | `tfswitch` (menú interactivo) | versiones en `~/.terraform.versions/`; `/usr/local/bin/terraform` es el symlink activo |
+| node | **nvm** (lazy) | `nvm install X` / `nvm use X` | `~/.nvm` (módulo `node.zsh`) |
+| java | **jenv** | `jenv global X` | shims en `~/.jenv/shims` (módulo `java.zsh`) |
+| terraform (trabajo) | tfenv | dentro del `.zshrc` MELI | aislado en el perfil `work` |
+| python/go (trabajo) | pyenv / goenv / mise | dentro del `.zshrc` MELI | aislado en el perfil `work` |
+
+> ⚠️ **terraform NO se instala por Homebrew** en la personal: un
+> `/opt/homebrew/bin/terraform` de brew taparía el symlink de tfswitch
+> (Homebrew va primero en el PATH). Por eso el `Brewfile` instala
+> `tfswitch` y no `terraform`. Tras una instalación limpia: `tfswitch`
+> y eliges la versión (se guarda en `~/.terraform.versions/`).
+>
+> El completion de terraform sigue funcionando al cambiar de versión:
+> `terraform.zsh` registra `complete -C "$(command -v terraform)"`, que
+> apunta al symlink de tfswitch y se resuelve en cada invocación.
 
 ---
 
