@@ -106,8 +106,11 @@ chezmoi/
 ├── .chezmoitemplates/
 │   └── zshrc-work            # work machine .zshrc (isolated, verbatim)
 ├── Brewfile                  # personal brew bundle (~/Brewfile, personal only)
-├── README.md                 # usage guide: daily workflow, clean installs, recipes (repo only)
+├── README.md                 # repository overview (repo only)
 ├── docs/                     # repo documentation (not deployed)
+│   ├── usage.md              # daily workflow, clean installs, recipes
+│   ├── architectur.md
+│   └── conventions.md
 ├── dot_config/
 │   ├── gh/                   # GitHub CLI (hosts.yml is never managed)
 │   ├── gitui/
