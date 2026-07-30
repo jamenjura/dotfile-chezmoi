@@ -1,0 +1,11 @@
+{{ if eq .profile "work" -}}
+{{ template "zshrc-work" . -}}
+{{ else -}}
+# -----------------------------------------------------------------------------
+# ~/.zshrc — Entry point
+# Personal shell configuration lives in ~/.config/zsh/ (managed with chezmoi).
+# Backup of the previous monolithic config: ~/.zshrc.bak-20260729
+# -----------------------------------------------------------------------------
+
+[[ -f "$HOME/.config/zsh/loader.zsh" ]] && source "$HOME/.config/zsh/loader.zsh"
+{{ end -}}

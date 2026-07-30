@@ -1,17 +1,19 @@
-export PATH="/opt/homebrew/bin:$PATH"
-export PATH="/opt/homebrew/sbin:$PATH"
-export PATH="/Users/alexandermenjura/.local/bin:$PATH"
+# -----------------------------------------------------------------------------
+# Module: Exports
+# Description: Global environment variables and PATH.
+# -----------------------------------------------------------------------------
 
-export HISTSIZE=50000
-export HISTFILESIZE=50000
-export SAVEHIST=50000
+# Homebrew prefix (Apple Silicon default; avoids a `brew --prefix` subprocess)
+export HOMEBREW_PREFIX="${HOMEBREW_PREFIX:-/opt/homebrew}"
 
-export DOCKER_DEFAULT_PLATFORM=linux/amd64
+# PATH (typeset -U removes duplicate entries)
+typeset -U path PATH
+path=(
+    "$HOMEBREW_PREFIX/bin"
+    "$HOMEBREW_PREFIX/sbin"
+    "$HOME/.local/bin"
+    $path
+)
 
-export EDITOR=/opt/homebrew/bin/nvim
-export VISUAL=/opt/homebrew/bin/nvim
-
-export NVM_DIR="$HOME/.nvm"
-
-export PATH="$HOME/.jenv/bin:$PATH"
-export PATH="$HOME/.npm-global/bin:$PATH"
+# Docker
+export DOCKER_DEFAULT_PLATFORM="linux/amd64"

@@ -1,12 +1,29 @@
-## Aliases
+# -----------------------------------------------------------------------------
+# Module: Aliases
+# Description: Common shell aliases.
+# -----------------------------------------------------------------------------
 
-alias ll='exa -lbGF --git'
-alias dircolors='gdircolors'
-alias ls='ls --color=auto'
-alias k='kubecolor'
-alias kube='kubecolor'
+# File listing (eza, the maintained fork of exa)
+if command -v eza >/dev/null 2>&1; then
+    alias ls='eza'
+    alias ll='eza -lah --git --icons'
+fi
+
+# Search
 alias grep='grep --color=auto'
+
+# Disk usage
 alias du1='du -h -d 1'
+
+# Kubernetes (kubecolor adds colors to kubectl output)
+if command -v kubecolor >/dev/null 2>&1; then
+    alias k='kubecolor'
+    alias kube='kubecolor'
+else
+    alias k='kubectl'
+fi
+
+# Terraform
 alias tf='terraform'
 
 # Git

@@ -1,0 +1,10 @@
+{{- /* Profile selection: "personal" (default) or "work".
+       The work machine is auto-detected by its username. */ -}}
+{{- $profile := "personal" -}}
+{{- if eq .chezmoi.username "jamenjura" -}}
+{{-   $profile = "work" -}}
+{{- end -}}
+{{- $profile = promptStringOnce . "profile" "Profile for this machine (personal/work)" $profile -}}
+
+[data]
+    profile = {{ $profile | quote }}

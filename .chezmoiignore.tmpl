@@ -1,0 +1,9 @@
+.atl
+.git
+.zshrc.secrets
+.zshrc_secrets
+
+{{ if eq .profile "work" -}}
+# The personal modular zsh config is not deployed on work machines
+.config/zsh/**
+{{ end -}}
