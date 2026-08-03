@@ -268,49 +268,6 @@ export ANTHROPIC_MODEL="claude-sonnet-4-6[1m]"
 export PIP_INDEX_URL='https://pypi.artifacts.furycloud.io/simple'
 export UV_INDEX_URL='https://pypi.artifacts.furycloud.io/simple'
 
-# >>> es-wrapper initialize >>>
-# Agregado automáticamente por el instalador de es-wrapper
-# Para desinstalar, ejecuta: ~/.es-wrapper/uninstall.sh
-export PATH="$HOME/.es-wrapper/bin:$PATH"
-
-unalias source 2>/dev/null
-unalias . 2>/dev/null
-source() {
-    builtin source "$@"
-    local ret=$?
-    if [[ -n "$VIRTUAL_ENV" ]]; then
-        export PATH="$HOME/.es-wrapper/bin:$PATH"
-    fi
-    return $ret
-}
-alias .='source'
-
-_es_wrapper_guard() {
-    case ":$PATH:" in
-        *":$HOME/.es-wrapper/bin:"*)
-            if [[ "$PATH" != "$HOME/.es-wrapper/bin:"* ]]; then
-                local _eswrap_p="${PATH//$HOME\/.es-wrapper\/bin:/}"
-                _eswrap_p="${_eswrap_p//:$HOME\/.es-wrapper\/bin/}"
-                export PATH="$HOME/.es-wrapper/bin:$_eswrap_p"
-            fi
-            ;;
-        *)
-            export PATH="$HOME/.es-wrapper/bin:$PATH"
-            ;;
-    esac
-}
-precmd_functions+=(_es_wrapper_guard)
-
-_es_wrapper_vm_hook() {
-    [[ -f .nvmrc || -f .node-version ]] && type nvm &>/dev/null && nvm use --silent 2>/dev/null
-    [[ -f .python-version ]] && command -v pyenv &>/dev/null && pyenv local 2>/dev/null
-}
-if [[ -n "$ZSH_VERSION" ]]; then
-    autoload -U add-zsh-hook 2>/dev/null
-    add-zsh-hook chpwd _es_wrapper_vm_hook
-    _es_wrapper_vm_hook
-fi
-# <<< es-wrapper initialize <<<
 source ~/.zshrc_secrets
 
 
@@ -319,8 +276,77 @@ source ~/.zshrc_secrets
 
 
 
+
+
+
+
+
+# >>> es-wrapper initialize >>>
+# Agregado automáticamente por el instalador de es-wrapper
+# Para desinstalar, ejecuta: ~/.es-wrapper/uninstall.sh
+
+_es_wrapper_prepend_path() {
+    local _eswrap_dir="$HOME/.es-wrapper/bin"
+    local _eswrap_path=":$PATH:"
+    while [[ "$_eswrap_path" == *":$_eswrap_dir:"* ]]; do
+        _eswrap_path="${_eswrap_path/:$_eswrap_dir:/:}"
+    done
+    if [[ -n "${NVM_BIN:-}" && -d "$NVM_BIN" ]]; then
+        while [[ "$_eswrap_path" == *":$NVM_BIN:"* ]]; do
+            _eswrap_path="${_eswrap_path/:$NVM_BIN:/:}"
+        done
+    fi
+    _eswrap_path="${_eswrap_path#:}"
+    _eswrap_path="${_eswrap_path%:}"
+    if [[ -n "${NVM_BIN:-}" && -d "$NVM_BIN" ]]; then
+        if [[ -n "$_eswrap_path" ]]; then
+            export PATH="$_eswrap_dir:$NVM_BIN:$_eswrap_path"
+        else
+            export PATH="$_eswrap_dir:$NVM_BIN"
+        fi
+    elif [[ -n "$_eswrap_path" ]]; then
+        export PATH="$_eswrap_dir:$_eswrap_path"
+    else
+        export PATH="$_eswrap_dir"
+    fi
+}
+_es_wrapper_prepend_path
+
+unalias source 2>/dev/null
+unalias . 2>/dev/null
+source() {
+    builtin source "$@"
+    local ret=$?
+    if [[ -n "$VIRTUAL_ENV" ]]; then
+        _es_wrapper_prepend_path
+    fi
+    return $ret
+}
+alias .='source'
+
+_es_wrapper_guard() {
+    _es_wrapper_prepend_path
+}
+if [[ " ${precmd_functions[*]-} " != *" _es_wrapper_guard "* ]]; then
+    precmd_functions+=(_es_wrapper_guard)
+fi
+
+_es_wrapper_vm_hook() {
+    if [[ -f .nvmrc || -f .node-version ]]; then
+        type nvm &>/dev/null && nvm use --silent 2>/dev/null
+    fi
+
+    if [[ -f .python-version ]]; then
+    fi
+}
+if [[ -n "$ZSH_VERSION" ]]; then
+    autoload -U add-zsh-hook 2>/dev/null
+    add-zsh-hook chpwd _es_wrapper_vm_hook
+    _es_wrapper_vm_hook
+fi
+# <<< es-wrapper initialize <<<
 # >>> Claude Code OpenTelemetry (managed) >>>
-export OTEL_RESOURCE_ATTRIBUTES='x.event.source=o11y-ai,x.mdm.script.name=set_system_hooks,x.mdm.script.version=1.4.2'
+export OTEL_RESOURCE_ATTRIBUTES='x.event.source=o11y-ai,x.mdm.script.name=set_system_hooks,x.mdm.script.version=1.5.0'
 export CLAUDE_CODE_ENABLE_TELEMETRY='1'
 export CLAUDE_CODE_ENHANCED_TELEMETRY_BETA='1'
 export OTEL_METRICS_EXPORTER='otlp'
